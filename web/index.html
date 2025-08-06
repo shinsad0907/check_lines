@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Change Via Pro - MMO Tool</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/png" href="logo/facebook.ico">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1 style="font-size: 2.1rem; margin: 0 0 4px 0;">⚡ CHANGE VIA PRO ⚡</h1>
+                <p style="margin: 0; font-size: 1.05rem; color: #bdbdbd;">Professional MMO Tool - Change Password & Recovery System</p>
+            </div>
+        </div>
+        
+
+        <div class="tab-container">
+            <div class="tab-nav">
+                <button class="tab-button active" onclick="switchTab('change-pass')">
+                    🔄 CHANGE PASSWORD
+                </button>
+                <!-- Add this button in the tab-nav div -->
+                <button class="tab-button" onclick="switchTab('change-mail')">
+                    ✉️ CHANGE MAIL
+                </button>
+                <button class="tab-button" onclick="switchTab('forgot-pass')">
+                    🔓 FORGOT PASSWORD
+                </button>
+                <button class="tab-button" onclick="switchTab('scan-friend')">
+                    👥 QUÉT FRIEND UID
+                </button>
+                <button class="tab-button" onclick="switchTab('enable-2fa')">
+                    🔐 BẬT 2FA
+                </button>
+                <button class="tab-button" onclick="switchTab('add-mail')">
+                    ✉️ ADD MAIL
+                </button>
+                
+            </div>
+
+            <!-- Add this code after the add-mail tab and before the footer -->
+            <div id="change-mail" class="tab-pane">
+                <div class="tab-content" style="display: flex; gap: 16px;">
+                    <!-- BẢNG TRÁI: TREEVIEW ACC -->
+                    <div class="data-table-container" style="flex: 0 0 600px; min-width: 300px;">
+                        <div class="table-header">
+                            <div class="table-title">👤 DANH SÁCH TÀI KHOẢN</div>
+                            <div class="selected-count" id="change-mail-selected-count">Đã chọn: 0</div>
+                        </div>
+                        <div class="table-wrapper" style="max-height: 400px; overflow: auto;">
+                            <table class="data-table" id="change-mail-table">
+                                <thead>
+                                    <tr>
+                                        <th><input type="checkbox" id="change-mail-select-all" onchange="toggleChangeMailSelectAll()"></th>
+                                        <th>STT</th>
+                                        <th>UID</th>
+                                        <th>PASS</th>
+                                        <th>COOKIE</th>
+                                        <th>MAIL</th>
+                                        <th>STATUS</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="change-mail-tbody">
+                                    <!-- Sample data -->
+                                    <tr>
+                                        <td><input type="checkbox" class="change-mail-row-checkbox" onchange="updateChangeMailSelectedCount()"></td>
+                                        <td>1</td>
+                                        <td>100001234567890</td>
+                                        <td>pass123</td>
+                                        <td>c_user=100001234567890...</td>
+                                        <td>old@mail.com</td>
+                                        <td><span style="color: #4ec9b0;">✓ Ready</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- BẢNG PHẢI: NHẬP MAIL -->
+                    <div style="flex: 1; display: flex; flex-direction: column; gap: 12px;">
+                        <div class="data-table-container">
+                            <div class="table-header">
+                                <div class="table-title">📧 NHẬP MAIL MỚI</div>
+                                <div class="table-actions">
+                                    <button class="copy-btn" onclick="clearChangeMailInput()">🗑️ Clear</button>
+                                    <button class="copy-btn" onclick="pasteChangeMailFromClipboard()">📋 Paste</button>
+                                </div>
+                            </div>
+                            <textarea id="change-mail-input" class="form-control" 
+                                    style="height: 400px; resize: none; font-family: monospace; font-size: 0.9rem;" 
+                                    placeholder="Nhập danh sách mail theo định dạng:&#10;MAIL|PASSWORD&#10;newmail@gmail.com|pass123"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONTROLS SECTION -->
+                <div class="controls-section" style="margin-top: 16px;">
+                    <div class="info-panel">
+                        <div class="panel-title">📊 THỐNG KÊ</div>
+                        <div class="info-item">
+                            <span class="info-label">Tổng tài khoản:</span>
+                            <span class="info-value" id="change-mail-total">0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Đã xử lý:</span>
+                            <span class="info-value" id="change-mail-processed">0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Thành công:</span>
+                            <span class="info-value" id="change-mail-success">0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Thất bại:</span>
+                            <span class="info-value" id="change-mail-failed">0</span>
+                        </div>
+                    </div>
+
+                    <div class="config-panel">
+                        <div class="panel-title">⚙️ CẤU HÌNH</div>
+                        
+                        <div class="form-group">
+                            <div class="form-row">
+                                <div class="checkbox-container">
+                                    <input type="checkbox" id="change-mail-use-proxy" checked>
+                                    <label for="change-mail-use-proxy" class="form-label">Dùng Proxy:</label>
+                                </div>
+                                <select id="change-mail-proxy-type" class="form-control" style="flex: 1;">
+                                    <option>Tmproxy.com</option>
+                                    <option>ProxyV6</option>
+                                    <option>911S5</option>
+                                    <option>ShopLike</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="checkbox-container">
+                                <input type="checkbox" id="change-mail-auto-cookie" checked>
+                                <label for="change-mail-auto-cookie" class="form-label">Tự động lấy cookie sau khi đổi mail</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Số luồng:</label>
+                            <input type="number" id="change-mail-thread-count" class="form-control" 
+                                value="3" min="1" max="10">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Delay (ms):</label>
+                            <input type="number" id="change-mail-delay" class="form-control" 
+                                value="1000" min="500" max="5000">
+                        </div>
+                    </div>
+
+                    <div class="actions-panel">
+                        <div class="file-output-label">📁 OUTPUT</div>
+                        <button class="action-button btn-start" id="open-ldplayer-btn" onclick="openLDPlayer()">
+                            🎮 OPEN LDPLAYER
+                        </button>
+                        <button class="action-button btn-start" id="change-mail-start-btn" onclick="startChangeMail()">
+                            ✉️ BẮT ĐẦU CHANGE
+                        </button>
+                        <button class="action-button btn-stop" id="change-mail-stop-btn" onclick="stopChangeMail()" disabled>
+                            ⏹️ DỪNG LẠI
+                        </button>
+                        <button class="action-button btn-export" onclick="exportChangeMailData()">
+                            📤 EXPORT DATA
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+        <!-- Thay thế phần scan-friend tab trong code gốc -->
+                        <!-- Scan Friend Tab -->
+            <div id="scan-friend" class="tab-pane">
+                <div class="tab-content" style="display: flex; gap: 16px;">
+                    <!-- BẢNG TRÁI: DANH SÁCH UID -->
+                    <div class="data-table-container" style="flex: 0 0 500px; min-width: 300px;">
+                        <div class="table-header">
+                            <div class="table-title">🌳 DANH SÁCH UID</div>
+                            <div class="selected-count" id="tree-selected-count">Đã chọn: 0</div>
+                        </div>
+                        <div class="table-wrapper" style="max-height: 600px; overflow: auto;">
+                            <table class="data-table" id="treeview-table">
+                                <thead>
+                                    <tr>
+                                        <th><input type="checkbox" id="tree-select-all" onchange="toggleTreeSelectAll()"></th>
+                                        <th>STT</th>
+                                        <th>UID</th>
+                                        <th>PASS</th>
+                                        <th>COOKIE</th>
+                                        <th>CHROME</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="treeview-tbody-scan-friend">
+                                    <!-- Sample rows -->
+                                    <tr>
+                                        <td><input type="checkbox" class="tree-row-checkbox" onchange="updateTreeSelectedCount()"></td>
+                                        <td>1</td>
+                                        <td>100001234567890</td>
+                                        <td>pass123</td>
+                                        <td>cookie_data</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="checkbox" class="tree-row-checkbox" onchange="updateTreeSelectedCount()"></td>
+                                        <td>2</td>
+                                        <td>100001234567891</td>
+                                        <td>pass456</td>
+                                        <td>cookie_data</td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- BẢNG PHẢI: 2 KHUNG NHỎ XẾP DỌC -->
+                    <div style="flex: 1; display: flex; flex-direction: column; gap: 12px;">
+                        <!-- NHẬP DỮ LIỆU -->
+                        <div class="data-table-container">
+                            <div class="table-header">
+                                <div class="table-title">📥 NHẬP DỮ LIỆU SCAN</div>
+                                <div class="table-actions">
+                                    <button class="copy-btn" onclick="clearScanInput()">🗑️ Clear</button>
+                                    <button class="copy-btn" onclick="pasteFromClipboard()">📋 Paste</button>
+                                </div>
+                            </div>
+                            <textarea id="scan-input-text" class="form-control" 
+                                    style="height: 150px; resize: vertical; font-family: monospace; font-size: 0.8rem;" 
+                                    placeholder="Nhập dữ liệu theo format:
+                UID|TÊN|PASS|COOKIE|PROXY
+                100001234567890|User1|pass123|cookie_data|192.168.1.1:8080
+
+                Hoặc chỉ UID:
+                100001234567890
+                100001234567891"></textarea>
+                        </div>
+
+                        <!-- KẾT QUẢ SCAN -->
+                        <div class="data-table-container">
+                            <div class="table-header">
+                                <div class="table-title">📋 KẾT QUẢ SCAN</div>
+                                <div class="table-actions">
+                                    <button class="copy-btn" onclick="clearScanResult()">🗑️ Clear</button>
+                                    <button class="copy-btn" onclick="exportScanResult()">📤 Export</button>
+                                    <button class="copy-btn" onclick="copyAllResults()">📋 Copy</button>
+                                </div>
+                            </div>
+                            <div id="scan-result-text" class="form-control" 
+                                style="height: 150px; resize: vertical; font-family: monospace; font-size: 0.8rem; overflow-y: auto; white-space: pre-line; padding: 8px; border: 1px solid #ccc; background-color: #fff;">
+                                <!-- Kết quả scan sẽ hiển thị ở đây -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONTROLS SECTION -->
+                <div class="controls-section" style="margin-top: 16px;">
+                    <div class="info-panel">
+                        <div class="panel-title">📊 THỐNG KÊ</div>
+                        <div class="info-item">
+                            <span class="info-label">Tổng UID scan:</span>
+                            <span class="info-value" id="scan-total-uid">0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Đã scan:</span>
+                            <span class="info-value" id="scan-completed">0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Thành công:</span>
+                            <span class="info-value" id="scan-success">0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Thất bại:</span>
+                            <span class="info-value" id="scan-failed">0</span>
+                        </div>
+                    </div>
+
+                    <div class="config-panel">
+                        <div class="panel-title">⚙️ CẤU HÌNH SCAN</div>
+                        
+                        <div class="form-group">
+                            <div class="form-row">
+                                <div class="checkbox-container">
+                                    <input type="checkbox" id="scan-use-proxy" checked>
+                                    <label for="scan-use-proxy" class="form-label">Dùng Proxy:</label>
+                                </div>
+                                <select id="scan-proxy-type" class="form-control" style="flex: 1;">
+                                    <option>Tmproxy.com</option>
+                                    <option>ProxyV6</option>
+                                    <option>911S5</option>
+                                    <option>ShopLike</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- <div class="form-group">
+                            <div class="checkbox-container">
+                                <input type="checkbox" id="scan-get-follow" checked>
+                                <label for="scan-get-follow" class="form-label">Lấy thông tin Follow</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="checkbox-container">
+                                <input type="checkbox" id="scan-get-mutual" checked>
+                                <label for="scan-get-mutual" class="form-label">Lấy bạn chung</label>
+                            </div>
+                        </div> -->
+
+                        <div class="form-group">
+                            <label class="form-label">Số luồng:</label>
+                            <input type="number" id="scan-thread-count" class="form-control" 
+                                value="3" min="1" max="10">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Delay giữa các request (ms):</label>
+                            <input type="number" id="scan-delay" class="form-control" 
+                                value="1000" min="500" max="5000">
+                        </div>
+                    </div>
+
+                    <div class="actions-panel">
+                        <div class="file-output-label">📁 SCAN OUTPUT</div>
+                        <button class="action-button btn-start" id="scan-start-btn" onclick="startScanFriend()">
+                            ▶️ START SCAN
+                        </button>
+                        <button class="action-button btn-stop" id="scan-stop-btn" onclick="stopScanFriend()" disabled>
+                            ⏹️ STOP SCAN
+                        </button>
+                        <button class="action-button btn-export" onclick="exportScanData()">
+                            📤 EXPORT DATA
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- Change Password Tab -->
+            <div id="change-pass" class="tab-pane active">
+                <div class="tab-content">
+                    <div class="data-table-container">
+                        <div class="table-header">
+                            <div class="table-title">📋 DANH SÁCH TÀI KHOẢN</div>
+                            <div class="selected-count" id="selected-count">Đã chọn: 0</div>
+                        </div>
+                        
+                        <div class="table-wrapper">
+                            <table class="data-table" id="account-table">
+                                <thead>
+                                    <tr>
+                                        <th><input type="checkbox" id="select-all" onchange="toggleSelectAll()"></th>
+                                        <th>STT</th>
+                                        <th>UID</th>
+                                        <th>COOKIE</th>
+                                        <th>MAIL</th>
+                                        <th>PASS NEW</th>
+                                        <th>PROXY</th>
+                                        <th>CODE</th>
+                                        <th>STATUS</th>
+                                        <th>CHROME</th> <!-- Thêm dòng này -->
+                                    </tr>
+                                </thead>
+                                <tbody id="account-tbody">
+                                    <!-- Sample data -->
+                                    <tr data-index="0">
+                                        <td><input type="checkbox" class="row-checkbox" onchange="updateSelectedCount()"></td>
+                                        <td>1</td>
+                                        <td>100001234567890</td>
+                                        <td></td>
+                                        <td>user1@gmail.com</td>
+                                        <td>password123</td>
+                                        <td>192.168.1.1:8080</td>
+                                        <td>123456</td>
+                                        <td><span style="color: #4ec9b0;">✓ Ready</span></td>
+                                        <td></td> <!-- cột CHROME -->
+                                    </tr>
+                                    <tr data-index="1">
+                                        <td><input type="checkbox" class="row-checkbox" onchange="updateSelectedCount()"></td>
+                                        <td>2</td>
+                                        <td>100001234567891</td>
+                                        <td>c_user=100001234567891...</td>
+                                        <td>user2@gmail.com</td>
+                                        <td>password456</td>
+                                        <td>192.168.1.2:8080</td>
+                                        <td>654321</td>
+                                        <td><span style="color: #dcdcaa;">⏳ Pending</span></td>
+                                        <td></td> <!-- THÊM DÒNG NÀY -->
+                                    </tr>
+                                    <tr onclick="selectRow(this, event)" data-index="2">
+                                        <td><input type="checkbox" class="row-checkbox" onchange="updateSelectedCount()"></td>
+                                        <td>3</td>
+                                        <td>100001234567892</td>
+                                        <td>c_user=100001234567892...</td>
+                                        <td>user3@hotmail.com</td>
+                                        <td>password789</td>
+                                        <td>192.168.1.3:8080</td>
+                                        <td>789123</td>
+                                        <td><span style="color: #f44747;">❌ Error</span></td>
+                                    </tr>
+                               
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="controls-section">
+                        <div class="info-panel">
+                            <div class="panel-title">📊 THÔNG TIN</div>
+                            <div class="info-item">
+                                <span class="info-label">Tổng Mail:</span>
+                                <span class="info-value" id="total-mail">3</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Tổng Proxy:</span>
+                                <span class="info-value" id="total-proxy">1</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Login Success:</span>
+                                <span class="info-value" id="login-success">0</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Login Fail:</span>
+                                <span class="info-value" id="login-fail">0</span>
+                            </div>
+                        </div>
+
+                        <div class="config-panel">
+                            <div class="panel-title">⚙️ CẤU HÌNH</div>
+                            
+                            <div class="form-group">
+                                <div class="form-row">
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="use-proxy" checked>
+                                        <label for="use-proxy" class="form-label">Dùng Proxy:</label>
+                                    </div>
+                                    <select id="proxy-type" class="form-control" style="flex: 1;">
+                                        <option>Tmproxy.com</option>
+                                        <option>ProxyV6</option>
+                                        <option>911S5</option>
+                                        <option>ShopLike</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="checkbox-container">
+                                    <input type="checkbox" id="auto-get-cookie" checked>
+                                    <label for="auto-get-cookie" class="form-label">Tự động lấy cookie sau khi đổi pass</label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Mật khẩu:</label>
+                                <select id="password-type" class="form-control" onchange="togglePasswordInput()">
+                                    <option>Tự nhập</option>
+                                    <option>Ngẫu nhiên</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <input type="text" id="password-input" class="form-control" 
+                                       placeholder="Nhập mật khẩu hoặc mẫu">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Số luồng:</label>
+                                <input type="number" id="thread-count" class="form-control" 
+                                       value="5" min="1" max="20">
+                            </div>
+                        </div>
+
+                        <div class="actions-panel">
+                            <div class="file-output-label">📁 FILE OUTPUT</div>
+                            <button class="action-button btn-start" id="start-btn" onclick="handleStartClick()">
+                                ▶️ START
+                            </button>
+                            <button class="action-button btn-stop" id="stop-change-pass" onclick="stopProcess()" disabled>
+                                ⏹️ STOP
+                            </button>
+                            <button class="action-button btn-export" onclick="exportData()">
+                                📤 EXPORT FILE
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Forgot Password Tab -->
+            <div id="forgot-pass" class="tab-pane">
+                <div class="tab-content">
+                    <div class="forgot-pass-form">
+                        <div class="panel-title">🔓 KHÔI PHỤC MẬT KHẨU</div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">📧 Danh sách Email (mỗi email một dòng):</label>
+                            <textarea id="email-list" class="form-control" rows="6" 
+                                      placeholder="user1@gmail.com&#10;user2@yahoo.com&#10;user3@hotmail.com"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="form-row">
+                                <div style="flex: 1;">
+                                    <label class="form-label">🔐 Mật khẩu mới:</label>
+                                    <input type="text" id="new-password" class="form-control" 
+                                           placeholder="Nhập mật khẩu mới">
+                                </div>
+                                <div style="flex: 1;">
+                                    <label class="form-label">🧵 Số luồng:</label>
+                                    <input type="number" id="forgot-thread-count" class="form-control" 
+                                           value="3" min="1" max="10">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="checkbox-container">
+                                <input type="checkbox" id="forgot-use-proxy" checked>
+                                <label for="forgot-use-proxy" class="form-label">Sử dụng Proxy</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="form-row">
+                                <button class="action-button btn-start" onclick="startForgotPassword()" style="flex: 1;">
+                                    🚀 BẮT ĐẦU KHÔI PHỤC
+                                </button>
+                                <button class="action-button btn-stop" onclick="stopForgotPassword()" style="flex: 1;" disabled>
+                                    ⏹️ DỪNG LẠI
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="progress-container">
+                            <div class="panel-title">📈 TIẾN ĐỘ</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress-fill"></div>
+                            </div>
+                            <div style="text-align: center; margin-top: 10px; color: #ffffff;">
+                                <span id="progress-text">0/0 - 0%</span>
+                            </div>
+                        </div>
+
+                        <div class="status-log" id="status-log">
+                            <div>🔥 System initialized...</div>
+                            <div>⚡ Ready for operations...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Mail Tab -->
+            <div id="add-mail" class="tab-pane">
+                <div class="tab-content">
+                    <div style="display: flex; gap: 16px;">
+                        <!-- BẢNG TRÁI: TREEVIEW MAIL NGUỒN -->
+                        <div class="data-table-container" style="flex: 0 0 500px; min-width: 300px;">
+                            <div class="table-header">
+                                <div class="table-title">📧 MAIL NGUỒN</div>
+                                <div class="selected-count" id="source-mail-selected-count">Đã chọn: 0</div>
+                            </div>
+                            <div class="table-wrapper" style="height: 300px; overflow: auto;">
+                                <table class="data-table" id="source-mail-table">
+                                    <thead>
+                                        <tr>
+                                            <th><input type="checkbox" id="source-mail-select-all" onchange="toggleSourceMailSelectAll()"></th>
+                                            <th>STT</th>
+                                            <th>MAIL</th>
+                                            <th>PASS</th>
+                                            <th>STATUS</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="source-mail-tbody">
+                                        <!-- Sample data -->
+                                        <tr>
+                                            <td><input type="checkbox" class="source-mail-row-checkbox" onchange="updateSourceMailSelectedCount()"></td>
+                                            <td>1</td>
+                                            <td>cornnel@op.pl</td>
+                                            <td>Hieu567@@@</td>
+                                            <td><span style="color: #4ec9b0;">✓ Ready</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- BẢNG PHẢI: TEXT AREA NHẬP MAIL -->
+                        <!-- Thêm vào phần bảng phải sau textarea input -->
+                        <div class="data-table-container" style="flex: 1;">
+                            <div class="table-header">
+                                <div class="table-title">📥 NHẬP MAIL MỚI</div>
+                                <div class="table-actions">
+                                    <button class="copy-btn" onclick="clearAddMailInput()">🗑️ Clear</button>
+                                    <button class="copy-btn" onclick="pasteAddMailFromClipboard()">📋 Paste</button>
+                                </div>
+                            </div>
+                            <!-- Thêm vào sau input area -->
+                            <div class="table-wrapper" style="height: 300px;">
+                                <textarea id="add-mail-input" class="form-control" 
+                                        style="height: 45%; resize: none; font-family: monospace; font-size: 0.9rem;" 
+                                        placeholder="Nhập danh sách mail theo định dạng:&#10;MAIL|PASSWORD&#10;example@gmail.com|pass123"></textarea>
+                                
+                                <!-- Thêm output area -->
+                                <div class="table-header" style="margin-top: 10px;">
+                                    <div class="table-title">📤 KẾT QUẢ ADD MAIL</div>
+                                    <div class="table-actions">
+                                        <button class="copy-btn" onclick="copyAddMailOutput()">📋 Copy</button>
+                                        <button class="copy-btn" onclick="clearAddMailOutput()">🗑️ Clear</button>
+                                    </div>
+                                </div>
+                                <textarea id="add-mail-output" class="form-control" readonly
+                                        style="height: 45%; resize: none; font-family: monospace; font-size: 0.9rem; margin-top: 10px;"
+                                        placeholder="Kết quả add mail sẽ hiển thị ở đây..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONTROLS SECTION -->
+                <div class="controls-section" style="margin-top: 16px;">
+                    <div class="info-panel">
+                        <div class="panel-title">📊 THỐNG KÊ</div>
+                        <div class="info-item">
+                            <span class="info-label">Tổng mail nguồn:</span>
+                            <span class="info-value" id="total-source-mail">0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Đã xử lý:</span>
+                            <span class="info-value" id="processed-mail">0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Thành công:</span>
+                            <span class="info-value" id="success-mail">0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Thất bại:</span>
+                            <span class="info-value" id="failed-mail">0</span>
+                        </div>
+                    </div>
+
+                    <div class="config-panel">
+                        <div class="panel-title">⚙️ CẤU HÌNH</div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Số luồng:</label>
+                            <input type="number" id="add-mail-thread-count" class="form-control" 
+                                value="17" min="1" max="50">  <!-- Tăng max lên 50 hoặc số mong muốn -->
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Số mail mỗi lần add:</label>
+                            <input type="number" id="add-mail-batch-size" class="form-control" 
+                                value="3" min="1" max="20">
+                        </div>
+                    </div>
+
+                    <!-- In the add-mail tab, update the actions-panel section -->
+                    <div class="actions-panel">
+                        <div class="file-output-label">📁 MAIL OUTPUT</div>
+                        <button class="action-button btn-start" id="add-mail-login-btn" onclick="startAddMailLogin()">
+                            🔑 LOGIN
+                        </button>
+                        <button class="action-button btn-start" id="add-mail-start-btn" onclick="startAddMail()" disabled>
+                            ➕ ADD MAIL
+                        </button>
+                        <button class="action-button btn-stop" id="add-mail-stop-btn" onclick="stopAddMail()" disabled>
+                            ⏹️ STOP
+                        </button>
+                        <button class="action-button btn-export" onclick="exportAddMailData()">
+                            📤 EXPORT DATA
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enable 2FA Tab -->
+            <div id="enable-2fa" class="tab-pane">
+                <div class="tab-content">
+                    <div class="data-table-container">
+                        <div class="table-header">
+                            <div class="table-title">📱 DANH SÁCH TÀI KHOẢN</div>
+                            <div class="selected-count" id="twofa-selected-count">Đã chọn: 0</div>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="data-table" id="twofa-table">
+                                <thead>
+                                    <tr>
+                                        <th><input type="checkbox" id="twofa-select-all" onchange="toggle2FASelectAll()"></th>
+                                        <th>STT</th>
+                                        <th>UID</th>
+                                        <th>PASS</th>
+                                        <th>COOKIE</th>
+                                        <th>2FA CODE</th>
+                                        <th>BACKUP</th>
+                                        <th>STATUS</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="twofa-tbody">
+                                    <!-- Sample data -->
+                                    <tr>
+                                        <td><input type="checkbox" class="twofa-row-checkbox" onchange="update2FASelectedCount()"></td>
+                                        <td>1</td>
+                                        <td>100001234567890</td>
+                                        <td>pass123</td>
+                                        <td>c_user=100001234567890...</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td><span style="color: #4ec9b0;">✓ Ready</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- CONTROLS SECTION -->
+                    <div class="controls-section" style="margin-top: 16px;">
+                    <div class="info-panel">
+                        <div class="panel-title">📊 THỐNG KÊ</div>
+                        <div class="info-item">
+                            <span class="info-label">Tổng tài khoản:</span>
+                            <span class="info-value" id="2fa-total-accounts">0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Đã xử lý:</span>
+                            <span class="info-value" id="2fa-completed">0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Thành công:</span>
+                            <span class="info-value" id="2fa-success">0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Thất bại:</span>
+                            <span class="info-value" id="2fa-failed">0</span>
+                        </div>
+                    </div>
+
+                    <div class="config-panel">
+                        <div class="panel-title">⚙️ CẤU HÌNH 2FA</div>
+                        
+                        <div class="form-group">
+                            <div class="form-row">
+                                <div class="checkbox-container">
+                                    <input type="checkbox" id="2fa-use-proxy" checked>
+                                    <label for="2fa-use-proxy" class="form-label">Dùng Proxy:</label>
+                                </div>
+                                <select id="2fa-proxy-type" class="form-control" style="flex: 1;">
+                                    <option>Tmproxy.com</option>
+                                    <option>ProxyV6</option>
+                                    <option>911S5</option>
+                                    <option>ShopLike</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="checkbox-container">
+                                <input type="checkbox" id="2fa-backup-codes" checked>
+                                <label for="2fa-backup-codes" class="form-label">Tạo mã dự phòng</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Số luồng:</label>
+                            <input type="number" id="2fa-thread-count" class="form-control" 
+                                value="3" min="1" max="10">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Delay giữa các request (ms):</label>
+                            <input type="number" id="2fa-delay" class="form-control" 
+                                value="1000" min="500" max="5000">
+                        </div>
+                    </div>
+
+                    <div class="actions-panel">
+                        <div class="file-output-label">📁 2FA OUTPUT</div>
+                        <button class="action-button btn-start" id="2fa-start-btn" onclick="start2FAEnable()">
+                            ▶️ BẮT ĐẦU
+                        </button>
+                        <button class="action-button btn-stop" id="2fa-stop-btn" onclick="stop2FAEnable()" disabled>
+                            ⏹️ DỪNG LẠI
+                        </button>
+                        <button class="action-button btn-export" onclick="export2FAData()">
+                            📤 EXPORT DATA
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            
+        </div>
+    </div>
+    <div class="footer">
+                <div class="footer-content">
+                    <div class="key-info">
+                        <div class="key-section">
+                            <span class="key-label">Key:</span>
+                            <span class="key-value" id="key-value">CVPRO-****-****-****-XXXX</span>
+                            <button class="copy-btn" onclick="copyKey()">Copy</button>
+                        </div>
+                        <div class="expiry-section">
+                            <span class="expiry-label">HSD:</span>
+                            <span class="expiry-value" id="expiry-value">30/12/2024</span>
+                        </div> 
+                    </div>
+                    
+                    <div class="footer-buttons">
+                        <span class="footer-auth">FB: shinsad.copyright</span>
+                        <button class="footer-btn update" onclick="window.open('https://shinsad.vn/update', '_blank')">Cập nhật</button>
+                        <button class="footer-btn support" onclick="window.open('https://facebook.com/shinsad.copyright', '_blank')">Hỗ trợ</button>
+                    </div>
+                </div>
+            </div>
+
+    <script type="text/javascript" src="/eel.js"></script>
+    <script src="src_script/change_pass.js"></script>
+    <script src="src_script/main.js"></script>
+    <script src="src_script/scan_friend.js"></script>
+    <script src="src_script/get2fa.js"></script>
+    <script src="src_script/add_mail.js"></script>
+    <script src="src_script/change_mail.js"></script>
+</body>
+</html>
